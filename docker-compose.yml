@@ -1,0 +1,50 @@
+services:
+
+  postgres:
+    image: postgres:alpine3.18
+    container_name: pg_db_test_ms
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - posgresql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+    networks:
+      - sb-postgres-network
+
+  pgadmin4:
+    image: dpage/pgadmin4:7.4
+    container_name: pgadmin4_ms
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin4:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: pass
+    depends_on:
+      - postgres
+    networks:
+      - sb-postgres-network
+
+  zipkin:
+    image: openzipkin/zipkin:2
+    container_name: zipkin_ms
+    restart: unless-stopped
+    ports:
+      - "9411:9411"
+    networks:
+      - sb-zipkin-network
+
+volumes:
+  posgresql:
+  pgadmin4:
+
+networks:
+  sb-postgres-network:
+    driver: bridge
+  sb-zipkin-network:
+    driver: bridge
